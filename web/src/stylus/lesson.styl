@@ -1,0 +1,222 @@
+@import 'main'
+@import 'codetheme'
+
+code
+	font-family: font-mono
+	color: grey
+	font-size: 85%
+pre
+	padding: 0 1em
+	inset-box()
+	overflow: hidden
+abbr
+	border-bottom: thin dotted
+	cursor: help
+	font-family: font-sans
+	font-size: 80%
+img, iframe
+	display: block
+	outset-box()
+	margin: 0 auto 1em
+table
+	width: 100%
+	font-size: 0.9em
+	line-height: 1.25
+	margin-bottom: 1em
+	tr
+		border-bottom: 1px solid grey_light
+	td
+		padding: 0.5em 0.75em
+
+.highlight
+	background-color: white
+	padding: 1em
+	margin: 0 1em
+	color: grey
+	outset-box()
+.example-container
+	position: relative
+.example
+	position: absolute
+	bottom: 0
+	right: 1em
+	// display: inline-block
+	background-color: white
+	padding: 10px
+	outset-box()
+.example-after:after
+	content: ''
+	display: block
+	position: absolute
+	bottom: 10px
+	left: 25%
+	width: 50%
+	height: 2px
+	background-color: blue
+.example-inline
+	background-image: url('data:image/png;base64,R0lGODlhDwALANUAACYpK////7KztEhLTJKUlU5QUv7+/mNlZy8yNCksLWttbjo8PmFjZJCRkk9RU7W2t9rb29jY2ZqbnJudnpmam0tNT9/f30dKS01QUb/AwUBCRCksLkBDRUFERqanqP39/S8xM/X19ebn59bX13V3eNnZ2uDh4Xh6e42PkCwvMWhqbPz8/Jyen/Hx8X+Bgvj4+O3t7js+QK+wsa2urwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAAAAAAALAAAAAAPAAsAAAZUQIBwOKwciMIOgjiAvThIhakRE0YCAcuAmFgFQiQVFltCygzYzxgrYAwL63jANQQR5AEDJqXZDCFyFEIXLDMSEyJxGUQFI3ItBEhCDigCDx4nC0hBADs=')
+	background-repeat: no-repeat
+	background-position: 50% 50%
+.example-transition
+	transition(background-color 500ms ease-out)
+	&:hover
+		background-color: yellow_dark !important
+.example-transform
+	&:hover
+		rotate(45deg)
+p.rule
+	position: relative
+	background-color: rgba(255,204,51,0.8)
+	color: darken(yellow_light, 70%)
+	padding: 0.5em 1em
+	font-family: font-sans
+	margin-bottom: 1em
+	border-radius 4px
+	text-align: center
+
+.compatibility
+	text-align: right
+	span
+		display: inline-block
+		padding: 0 5px
+		margin-right: 1px
+		font-family: font-sans
+		font-size: 0.6em
+		&.no
+			border-top: 2px solid red
+		&.yes
+			border-top: 2px solid green
+		&.maybe
+			border-top: 2px solid yellow_dark
+
+.button-mode
+	position: absolute
+	top: 0
+	right: 0
+	margin: 1em
+	padding: 0.5em 1em
+
+.pres
+	display: none
+.ref
+	display: auto
+aside,
+footer
+	display: block
+
+article
+	width: 75%
+	margin-left: 25%
+	padding: 4em 5% 1.5em
+	max-width: 800px
+	header
+		h1>span
+			font-size: 0.6em
+		h1, h4
+			padding: 0
+	ul
+		margin: 0 0 1em 1em
+		list-style: circle outside
+		li
+			margin-left: 20px
+			&>ul
+				list-style: disc outside
+				margin: 0 0 0.25em 0
+	footer
+		border-top: thin solid grey_light
+		margin-top: 2em
+		padding-top: 2em
+		h2
+			font-weight: normal
+
+aside
+	position: fixed
+	top: 0
+	left: 0
+	width: 25%
+	height: 100%
+	overflow: auto
+	background-color: black
+	background-image: linear-gradient(right, black, darken(black, 30%))
+	box-shadow inset -4px 0 10px rgba(0,0,0,0.7)
+	color: grey_light
+	z-index: 100
+	h1
+		text-align: center
+		text-shadow: 0 2px rgba(0,0,0,0.5)
+		padding: 1.5em 0 1em
+	nav
+		padding: 0 5%
+		li
+			margin-bottom: 1em
+			&.disabled
+				opacity: 0.3
+				h4
+					text-align: left
+		li.active
+			padding: 0.5em
+			h2, h4
+				color: black
+			p.description
+				display: none
+			ul.outline
+				padding-bottom: 0.5em
+				li
+					margin-bottom: 0
+					&.outline-level-2
+						padding-left: 1em
+					&.outline-level-3
+						padding-left: 2em
+					&.outline-level-4
+						padding-left: 3em
+					a
+						padding: 0
+						text-transform: capitalize
+						font-size: 0.8em
+						color: blue
+						&:hover
+							color: white
+							background-image: none
+		li.active, a:hover
+			color: black
+			border-radius 4px
+		li.active
+			outset-box()
+			background-image: linear-gradient(top, lighten(black, 15%), lighten(black, 5%))
+			h2, h4
+				color: grey_light
+		a:hover
+			background-image: linear-gradient(top, blue, darken(blue, 30%))
+			h2
+				color: grey_light
+			h4
+				color: darken(blue, 40%)
+		h2, h4, p
+			padding: 0
+		h2
+			color: grey_light
+			text-shadow: 0 1px rgba(0,0,0,0.3)
+			&>span
+				font-size: 0.5em
+		h4
+			border-bottom: thin solid rgba(255,255,255,0.1)
+			text-align: right
+			color: grey_light
+			font-size: 0.8em
+		p
+			font-size: 0.9em
+		a
+			display: block
+			color: white
+			padding: 0.5em
+			transition: all 0.5s
+			h2, h4
+				transition: color 0.5s
+			h2
+				color: blue
+
+.reference-mode
+	#btnReference
+		display: none
+
+@import 'presentation'

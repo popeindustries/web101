@@ -1,0 +1,83 @@
+.presentation-mode
+	.pres
+		display: block
+	.ref,
+	aside,
+	footer
+		display: none
+
+	body
+		padding: 2em
+		font-size: 150%
+		background-color: black
+		background-image: none
+		overflow: auto
+	h1, h2
+		text-align: center
+	h1
+		font-size: 3.5em
+	h2
+		font-size: 2em
+	h3
+		font-size: 1.75em
+	h4, h5
+		font-size: 1.25em
+	a
+		color: inherit
+	.highlight
+		margin-bottom: 2em
+	.partial
+		opacity: 0
+		transition opacity 0.5s
+		&.show
+			opacity: 1
+	.small
+		font-size: 0.6em
+
+	article
+		display: table
+		max-width: none
+		width: 100%
+		height: 100%
+		background-color: grey_very_light
+		background-image: linear-gradient(top, grey_very_light 40%, lighten(blue, 85%) 100%)
+		outset-box()
+		margin: 0
+		padding: 1em 2em
+		border-radius 10px
+		opacity: 1
+		transition opacity 0.25s
+		&.hide
+			opacity: 0
+		header, section
+			display: none
+			&.current
+				display: table-cell
+				vertical-align: middle
+		header
+			text-align: center
+		.example-container
+			&.reset
+				.example-strikethrough
+					text-decoration: line-through
+
+	#btnPresentation
+		display: none
+	#btnReference
+		bottom: 0
+		top: auto
+
+	#progress
+		position: fixed
+		bottom: 0
+		left: 0
+		width: 0
+		height: 12px
+		background-color: rgba(0,155,200,0.75)
+		transition width 250ms ease-out
+		p
+			font-weight: bold
+			color: white
+			font-size: 12px
+			line-height: 14px
+			padding-left: 6px

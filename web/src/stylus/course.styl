@@ -1,0 +1,69 @@
+@import 'main'
+
+html, body
+	height: auto
+h1
+	padding-top: 0.75em
+	text-align: center
+	text-shadow: 0 2px rgba(0,0,0,0.3)
+h2, h4
+	padding: 0
+h2
+	color: grey_light
+	text-shadow: 0 1px rgba(0,0,0,0.3)
+	&>span
+		font-size: 0.5em
+h4
+	color: grey
+	border-bottom: thin solid rgba(255,255,255,0.1)
+a.button
+	display: inline-block
+	margin-bottom: 2em
+
+ul.list
+	list-style: circle outside
+	margin-bottom: 2em
+	h4
+		margin-bottom: 1em
+	li
+		margin-left: 2em
+
+nav
+	li
+		margin-bottom: 1em
+		&.disabled
+			padding: 0 0.5em
+			opacity: 0.3
+		a
+			display: block
+			color: white
+			padding: 0.5em 0.5em 1em
+			background-image: none
+			border-radius 4px
+			transition: all 0.5s
+			h2, h4
+				transition: color 0.5s
+			h2
+				color: blue
+			&:hover
+				color: black
+				background-image: linear-gradient(top, blue, darken(blue, 30%))
+				h2
+					color: grey_light
+				h4
+					color: darken(blue, 40%)
+			h4
+				text-align: right
+			p
+				padding: 0
+
+#wrapper
+	width: 80%
+	max-width: 600px
+	margin: 2em auto
+	padding: 2em
+	color: grey_light
+	background-color: black
+	background-image: linear-gradient(top, lighten(black, 10%), darken(black, 60%))
+	box-shadow inset 0 1px rgba(255,255,255,0.15), 0 3px 5px rgba(0,0,0,0.4)
+	border-radius 6px

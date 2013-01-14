@@ -1,0 +1,86 @@
+@import 'nib/vendor'
+@import 'nib/gradients'
+@import 'nib/reset'
+@import 'base'
+
+global-reset()
+reset-html5()
+
+*
+	box-sizing(border-box)
+
+html, body
+	height: 100%
+body
+	font-family: font-serif
+	font-size: 100%
+	line-height: 1.5
+	-webkit-font-smoothing: antialiased
+	color: black
+	background-color: grey_very_light
+	background-image: url('../images/bg-tile.gif')
+	background-repeat: repeat
+	background-position: top left
+h1, h2, h3, h4, h5
+	font-family: font-sans
+	margin-top: 0
+	margin-bottom: 0
+h1
+	font-size: 1.75em
+	font-weight: bold
+	padding: 1.75em 0
+	text-transform: uppercase
+h2
+	font-size: 1.33333em
+	font-weight: bold
+	padding: 1.33333em 0
+	text-transform: uppercase
+h3
+	font-size: 1.16667em
+	// font-weight: bold
+	padding: 1.16667em 0 0
+	margin-bottom: 1.16667em
+	text-transform: capitalize
+	border-bottom: thin solid lighten(grey_light, 50%)
+h4
+	padding: 1em 0
+	text-transform: uppercase
+h5
+	font-style: italic
+	padding: 1em 0
+em
+	font-style: italic
+strong
+	font-weight: bolder
+a
+	text-decoration: none
+	color: blue
+	font-family: font-sans
+	&:hover
+		color: black
+p
+	padding-bottom: 1em
+.small
+	font-size: 80%
+.sans
+	font-family: font-sans
+	font-size: 90%
+.serif
+	font-family: font-serif
+
+.button
+	text-transform: uppercase
+	background-color: blue
+	border: none
+	color: white
+	font-size: 0.7em
+	transition background-color 0.25s
+	outset-box()
+	&:hover
+		background-color: darken(blue, 20%)
+a.button
+	padding: 0.5em 0.75em 0.3em
+	&:hover
+		color: white
+button.button
+	cursor: pointer
