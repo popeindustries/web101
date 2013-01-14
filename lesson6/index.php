@@ -1,0 +1,793 @@
+<?php include '../_header.php' ?>
+<article>
+	<header class="current">
+		<h4>lesson 6</h4>
+		<h1>JS <span>part 3</span></h1>
+	</header>
+
+	<section>
+		<h2 class="outline" id="patterns">patterns</h2>
+		<p>The key to writing maintainable code is to apply proven practices to common problems, allowing you to abstract away the low-level details that can often obscure your understanding of how the parts of your code function together. <em>Design Patterns</em> are a broad and varied family of proven solutions to common creational, structural, and behavioural problems. We will cover a few of the more useful patterns here in order to help improve overall code organization and structure.
+		</p>
+	</section>
+
+	<section>
+		<h3 class="outline" id="codePatterns">code patterns</h3>
+		<p>Code patterns in JavaScript are specific to the language, and deal primarily with object creation and strategies for code reuse.
+		</p>
+	</section>
+
+	<section>
+		<h4 class="outline" id="objectCreation">object creation</h4>
+		<p>Because JavaScript doesn't enforce any specific code organization syntax (namespaces, classes, modules, etc), much of the object creation techniques below fall under "best practices":
+		</p>
+	</section>
+
+	<section>
+		<h5 class="outline" id="namespacing">Namespacing</h5>
+		<p>Namespaces are a common way to avoid naming collisions and excessive global objects by grouping object references in a hierarchical way. JavaScript doesn't provide a native way to namespace object references, but a regular <code>object</code> instance can be used to simulate this behaviour:
+		</p>
+		<pre class="partial"><code class="language-js">
+var MyApp = {};
+MyApp.models = {};
+MyApp.models.MainModel = function() { ... };
+		</code></pre>
+	</section>
+	<section>
+		<p>A more generic namespace utility can be used to make namespacing less of a chore:
+		</p>
+		<pre class="partial"><code class="language-js">
+function namespace (namespaceString) {
+  var parts = namespaceString.split('.'),
+    parent = window,
+    currentPart = '';
+  for (var i = 0, length = parts.length; i < length; i++) {
+    currentPart = parts[i];
+    parent[currentPart] = parent[currentPart] || {};
+    parent = parent[currentPart];
+  }
+  return parent;
+}
+
+namespace('MyApp.models.MainModel') = function() { ... };
+		</code></pre>
+  </section>
+
+  <section>
+    <h5 class="outline" id="staticMembers">Static Members</h5>
+    <p>Like namespacing, JavaScript has no special syntax for marking properties or methods of an object <em>static</em> (members attached to the Class, not individual instances). Because constructor functions in JavaScript are just another object, it is quite easy to simulate this pattern by attaching members to the constructor function directly:
+    </p>
+	</section>
+	<section>
+		<pre class=""><code class="language-js">
+function Foo() {}
+Foo.max = 'foo to the max';
+Foo.prototype.min = 'foo to the min';
+
+var foo = new Foo();
+console.log(foo.max); //undefined
+console.log(foo.min); //'foo to the min'
+console.log(Foo.max); //'foo to the max'
+console.log(Foo.min); //undefined
+		</code></pre>
+	</section>
+
+	<section>
+		<h5 class="outline" id="constants">Constants</h5>
+		<p>As with static members, there is no special syntax for constant values in JavaScript, and there is no way to make an object's values immutable. As convention, however, using uppercase names generally signals that those values should not be modified:
+		</p>
+		<pre class="partial"><code class="language-js">
+function Foo() {}
+Foo.MAX = 'don`t touch';
+		</code></pre>
+  </section>
+
+  <section>
+    <h5 class="outline" id="dependencyDeclaration">Dependency Declaration</h5>
+    <p>JavaScript also has no native way to declare dependencies among objects. Nevertheless, it is still good practice to always declare dependencies at the top of your file/module/block. Assigning global or namespaced objects to local variables has the following benefits:
+    </p>
+    <ul >
+      <li class="partial">explicitly signal which files are needed to make your code function</li>
+      <li class="partial">reduce the time it takes to resolve value lookup by shortening the lookup chain</li>
+      <li class="partial">allow minifiers to shorten variable names (they are not able to rename global objects for fear of breaking references elsewhere)</li>
+    </ul>
+	</section>
+	<section>
+		<pre class=""><code class="language-js">
+function Foo() {
+  //Dependencies
+  var $ = window.jQuery,
+    animate = MyLib.utils.animate;
+
+  this.$el = $('#foo');
+  ...
+}
+		</code></pre>
+	</section>
+
+	<section>
+		<h5 class="outline" id="chaining">Chaining</h5>
+		<p>Chaining, a pattern popularized by jQuery, is a simple pattern to include in any object. Just return <code>this</code> for method calls that normally have no return value:
+		</p>
+		<pre class="partial"><code class="language-js">
+function Foo() {}
+Foo.walk = function() {
+  console.log('walk');
+  return this;
+}
+Foo.talk = function() {
+  console.log('talk');
+  return this;
+}
+var foo = new Foo();
+foo.walk().talk(); //"walk", "talk"
+		</code></pre>
+	</section>
+
+	<section>
+		<h5 class="outline" id="privateMembers">Private Members</h5>
+		<p>Like statics, JavaScript has no special syntax for making properties or methods of an object <em>private</em> (only accessible to the object itself). Nevertheless, by leveraging functional scope and closures, we can simulate this behaviour:
+		</p>
+		<pre class="partial"><code class="language-js">
+function Foo() {
+  var name = 'foo';
+  this.getName = function() {
+    return name;
+  };
+}
+		</code></pre>
+  </section>
+
+  <section>
+    <h5 class="outline" id="modulePattern">Module Pattern</h5>
+    <p>The Module Pattern is a formalized structure for packaging code in a self-contained unit. By employing an <a href="../lesson4/#funcIIFE">IIFE</a>, we can easily control the accessibility of an object's members and provide an explicit API for it's use:
+    </p>
+  </section>
+  <section>
+    <pre class=""><code class="language-js">
+namespace('app.utils.foo') = (function () {
+  //Private properties
+  var bar = 'bar';
+  //Private methods
+  var random = function(count) {
+    return Math.random() * count
+  };
+
+  //API
+  return {
+    name: 'foo',
+    getRandomBars: function(count) {
+        return bar + ': ' + random(count);
+      }
+  };
+})();
+    </code></pre>
+  </section>
+  <section>
+    <p>Taking it one step further, we can use the module pattern to create a more traditional class-based structure by defining an object and only returning its constructor:
+    </p>
+	</section>
+	<section>
+		<pre class=""><code class="language-js">
+namespace('app.utils.Foo') = (function () {
+  //Private properties
+  ...
+  //Private methods
+  ...
+  //API
+  function Foo(name) {
+    this.name = name;
+  };
+  Foo.prototype.getFancyName = function() {
+    return this.name + ' fancy!';
+  }
+  return Foo; //Return constructor function
+})();
+
+var foo = new app.utils.Foo('bar');
+foo.getFancyName(); //"bar fancy!"
+		</code></pre>
+	</section>
+	<section>
+		<p>Another common variation is to pass global object references into the IIFE, making our dependency declaration that much easier:
+		</p>
+		<pre class="partial"><code class="language-js">
+namespace('app.utils.Foo') = (function ($, win, doc) {
+  ...
+})(jQuery, window, document);
+		</code></pre>
+	</section>
+
+	<section>
+		<h4 class="outline" id="codeReuse">code reuse</h4>
+		<p>Writing code that is reusable can greatly simplify a program by limiting the total amount of code to manage. We have already discussed <a href="../lesson4/#objMixins">mix-ins</a> and <a href="../lesson4/#funcApplication">borrowing</a> methods from other objects, but it's inheritance, both <em>classical</em> and <em>prototypal</em>, that are often turned to when reusing code among objects. In inheritance patterns, the goal is to describe an object (Parent) that can be easily extended with additional functionality by another object (Child).
+		</p>
+  </section>
+
+  <section>
+    <h5 class="outline" id="classicalInheritance">Classical Inheritance</h5>
+    <p>Although JavaScript is a prototypical language, and has no strict class syntax, it does have constructors and the <code>new</code> keyword. Some of the other features of classical inheritance can therefore be simulated by manipulating object creation and the prototype chain:
+    </p>
+	</section>
+	<section>
+		<pre class=""><code class="mini language-js">
+function inherit(Child, Parent) {
+  //copy 'own' properties from parent to child
+  for (var key in Parent) {
+    if (parent.hasOwnProperty(key)) {
+      Child[key] = Parent[key];
+    }
+  }
+  //proxy constructor function
+  function Ctor() {
+    this.constructor = Child; //set constructor property to point to Child
+  }
+  //proxy inherits from Parent's prototype (avoid Parent instance)
+  Ctor.prototype = Parent.prototype;
+  //Child inherits from proxy (requires an object, not function)
+  Child.prototype = new Ctor();
+  //store reference to Child's 'super'
+  Child._super = Parent.prototype;
+  //return extended constructor function
+  return Child;
+}
+		</code></pre>
+  </section>
+  <section>
+    <p>Using this <code>inherit</code> helper function, we can create objects in a more "classical" way:
+    </p>
+    <pre class="partial"><code class="language-js">
+function Parent() {};
+Parent.prototype.talk = function() {
+  console.log('hi!');
+}
+function Child() {};
+Child.prototype.walk = function() {
+  console.log('walking');
+}
+inherit(Child, Parent);
+
+var child = new Child();
+child.talk(); //"hi!"
+child.walk(); //"walking"
+    </code></pre>
+  </section>
+  <section>
+		<img class="" src="../assets/images/class-inheritance.png" width="400px" height="300px" alt="">
+	</section>
+
+	<section>
+		<h5 class="outline" id="prototypalInheritance">Prototypal Inheritance</h5>
+		<p>Although the goals are the same, Prototypal inheritance avoids <em>new</em>ing objects in favour of a more object based approach, thought the mechanics are necessarily similar:
+		</p>
+	</section>
+	<section>
+    <pre class=""><code class="language-js">
+var parent = {};
+parent.talk = function() {
+  console.log('hi!');
+}
+
+var child = Object.create(parent);
+child.walk = function() {
+  console.log('walking');
+}
+child.talk(); //"hi!"
+child.walk(); //"walking"
+    </code></pre>
+    <img class="partial" src="../assets/images/proto-inheritance.png" width="300px" height="120px" alt="">
+  </section>
+  <section>
+    <p><code>object.create()</code> is a new addition to ES5 (the most recent language spec), though it is relatively simple to polyfill:
+    </p>
+  </section>
+  <section>
+		<pre class=""><code class="mini language-js">
+if (typeof Object.create != 'function') {
+  Object.create = function(parent, props) {
+    //proxy constructor function
+    function F() {}
+    //proxy inherits from parent
+    F.prototype = parent;
+
+    //copy props to proxy
+    if (typeof(props) == 'object') {
+      for (prop in props) {
+      	//guard against copying inherited properties
+        if (props.hasOwnProperty(prop)) {
+          F[prop] = props[prop]
+        }
+      }
+    }
+    return new F(); //return instance
+  }
+}
+		</code></pre>
+	</section>
+
+	<section>
+		<h3 class="outline" id="architectualPatterns">architectural patterns</h3>
+		<p>Concerned with the behaviour of objects and how they interact and communicate with each other, architectural patterns help organize separate code parts into a working application.
+		</p>
+  </section>
+
+  <section>
+    <h4 class="outline" id="observer">Observer</h4>
+    <p>The Observer pattern describes the relationship between a publisher component and it's subscribers. Subscriber components sign-up with the publisher to be notified of specific changes, and the publisher dispatches updates (with data) to all subscribers when it's state changes. This simple construction has the benefit of loosely coupling components together, as well as promoting flexibility by allowing any number of subscribers to add or remove themselves from notification.
+    </p>
+    <p class="ref">Because the DOM API already uses an eventing system, it is quite natural in JavaScript to use a similar event paradigm for the mechanics of an Observer pattern:
+    </p>
+	</section>
+	<section>
+		<pre class=""><code class="mini language-js">
+var publisher = {
+  handlers: {},
+  on: function(type, callback) {
+    if (!(type in this.handlers)) {
+      this.handlers[type] = [];
+    }
+    this.handlers[type].push(callback);
+  },
+  off: function(type, callback) {
+    for (var i = 0, n = this.handlers[type].length; i < n; i++) {
+      if (callback === this.handlers[type][i]) {
+        this.handlers[type].splice(i, 1);
+        break;
+      }
+    }
+  },
+  trigger: function(type, data) {
+    if (this.handlers && type in this.handlers) {
+      var list = this.handlers[type].slice();
+      for (var i = 0, n = list.length; i < n; i++) {
+        list[i].call(target, data);
+      }
+    }
+  }
+}
+		</code></pre>
+  </section>
+  <section>
+    <p>Using the above, we can easily implement an Observer pattern between two objects:
+    </p>
+  </section>
+	<section>
+    <pre class=""><code class="mini language-js">
+var pub = {
+  data: null,
+  init: function() {
+    this.data = 'foo';
+    //mix-in publisher behaviour
+    extend(this, publisher);
+  },
+  setData: function(value) {
+    this.data = value;
+    this.trigger('change:data', this.data);
+  }
+};
+var sub = {
+  init: function() {
+    pub.on('change:data', bind(this.onDataChange, this));
+  },
+  onDataChange: function(data) {
+    console.log('data changed: ', data);
+  }
+};
+pub.init();
+sub.init();
+pub.setData('bar'); //"data changed: bar"
+    </code></pre>
+  </section>
+
+  <section>
+		<h4 class="outline" id="mediator">Mediator</h4>
+		<p>The Mediator pattern allows components to communicate with each other with the help of a central point of control. This pattern prevents too many direct relationships between components, and makes it easier to manage relationships by locating them in one place. This promotes loose coupling by ensuring that components don't directly refer to each other. For example, in an application context, mediators can be used to coordinate "page" state across application components (router), or to coordinate the display state of individual "pages" (display manager).
+		</p>
+  </section>
+
+  <section>
+    <h4 class="outline" id="mvc">MVC</h4>
+    <p>The MVC (Model-View-Controller) pattern is a classic and often used application architecture. More of a meta-pattern, combining several common architectural patterns, MVC encourages application organization through a separation of concerns: <em>Models</em> store business data, <em>Views</em> present business data in a user interface, and <em>Controllers</em> manage logic and user input.
+    </p>
+	</section>
+	<section>
+    <p>In a JavaScript context, the classic MVC pattern has mutated somewhat, and there are now several popular variations that differ in the <em>View-Controller</em> side of things (often called MV*). Classically, the components have the following responsibilities:
+		</p>
+		<ul>
+			<li class="partial"><strong>Model</strong>: stores unique data; ignorant of <em>Views</em>; uses Observer pattern to notify components of changes in data (state)</li>
+			<li class="partial"><strong>View</strong>: visual representation of <em>Model</em> data; observes a <em>Model</em> for state changes; builds and maintains a DOM element to reflect changes</li>
+			<li class="partial"><strong>Controllers</strong>: handles user changes to <em>View</em> and updates <em>Model</em> state accordingly; mediates between <em>Model</em> and <em>View</em></li>
+		</ul>
+  </section>
+
+  <section>
+    <h5 class="outline" id="backbone">Backbone.js</h5>
+    <p><a href="http://documentcloud.github.com/backbone/" target="_blank">Backbone.js</a> is a popular MVC-like framework that leans quite heavily on the <em>Model</em> side of things, allowing for considerable flexibility when designing application architecture. The primary components of the Backbone.js library include:
+    </p>
+    <ul>
+      <li class="partial"><strong>Model</strong>: stores (and optionally validates) business data; saves/fetches data to/from the server; notifies subscribers of changes</li>
+      <li class="partial"><strong>Collection</strong>: ordered set of <em>Models</em>; allows sorting and manipulation of <em>Models</em>; can delegate change notification for nested <em>Models</em></li>
+      <li class="partial"><strong>Router</strong>: routes changes in page url to actions/events; manages browser history (via history API or hash changes)</li>
+      <li class="partial"><strong>View</strong>: manages display of DOM element based on changes in <em>Model</em>; can use JavaScript templates to render dynamic markup</li>
+    </ul>
+  </section>
+  <section>
+    <p>Out of the box, Backbone.js is designed to work well with RESTful interfaces, allowing you to easily store and retrieve data to and from the server. With a built-in event system, it is then trivial to wire <em>View</em> updates to <em>Model</em> changes. Backbone.js doesn't have any formal <em>Controllers</em> (though <em>Routers</em> can be considered a very specific kind), with <em>Views</em> often handling user interaction directly, updating their <em>Models</em> when necessary.
+    </p>
+  </section>
+  <section>
+    <p>A basic game <em>Model</em>:</p>
+    <pre class="partial"><code class="mini language-js">
+var GameModel = Backbone.Model.extend({
+  //Default attributes
+  defaults: {
+    score: 0,
+    level: 1,
+    userId: null,
+    highScore: null
+  },
+  initialize: function() {
+    //Retrieve initial game data from server
+    this.fetch({
+      success: bind(this.onSuccess, this),
+      error: bind(this.onError, this)
+    });
+  }
+  ...
+});
+var game = new GameModel();
+    </code></pre>
+  </section>
+  <section>
+    <p>A basic game <em>View</em>:</p>
+    <pre class="partial"><code class="mini language-js">
+var GameView = Backbone.View.extend({
+  //Event handling (automatically bound to this)
+  events: {
+    "click #btnFire": "onFire",
+    "click #btnFly": "onFly"
+  },
+  render: function() {
+    //Render template, inserting model data
+    this.$el.html(this.template(this.model.toJSON()));
+  },
+  onFire: function(evt) {
+    evt.preventDefault();
+    if (this.enemy.isDead()) {
+      //Update Model with new score
+      this.model.set('score', this.model.get('score')++);
+    }
+  }
+  ...
+});
+var view = new GameView({
+  model: game,
+  el: document.getElementById('game')
+});
+    </code></pre>
+	</section>
+	<section>
+		<p>A basic score <em>View</em>:</p>
+		<pre class="partial"><code class="language-js">
+var ScoreView = Backbone.View.extend({
+  initialize: function() {
+    //Register for model score changes (bound to this)
+    this.model.on('change:score', render, this);
+  },
+  render: function() {
+    //Update HTML
+    this.$el.text(this.model.get('score'));
+  }
+  ...
+});
+var score = new ScoreView({
+  model: game,
+  el: document.getElementById('score')
+});
+		</code></pre>
+	</section>
+
+	<section>
+		<h3 class="outline" id="modules">modules</h3>
+		<p>Modules (not to be confused with the <em>Module Pattern</em>) are self-contained pieces of code that allow us to formally separate and isolate functionality. Modular code promotes loose coupling and overall code organization, and may even be taken so far as to separate code into different files. Unfortunately, JavaScript currently does not natively support a module loading mechanism (due to be included in future versions), and as a result, several module approaches are available to choose from.
+		</p>
+  </section>
+
+  <section>
+    <h4 class="outline" id="commonjs">CommonJS</h4>
+    <p>CommonJS modules were designed for use in JavaScript server environments, and provide a simple API for describing and importing modules. At it's most basic, CommonJS modules have access to an <code>exports</code> property that can be decorated with functionality (public API), and a <code>require()</code> method that can be used to access the public API of other modules:
+    </p>
+	</section>
+	<section>
+		<pre class=""><code class="language-js">
+require.module('my_module', function(exports, require) {
+  var property = 'foo';
+  var method = function() {
+    return 'can't get me';
+  };
+  exports.property = 'bar';
+  exports.method = function() {
+    return property + ' got me';
+  };
+});
+
+var module = require('my_module');
+console.log(module.property, module.method()); //"bar", "foo got me"
+		</code></pre>
+  </section>
+
+  <section>
+    <h5 class="outline" id="nodejs">Node.js Modules</h5>
+    <p>Node.js uses a module framework based on CommonJS. Modules are automatically generated from JavaScript files, and given ids based on their file paths (similar to packages in other languages). In addition, a <code>module</code> reference is also passed in, which allows the <code>exports</code> object to be replaced with another value:
+    </p>
+	</section>
+	<section>
+    <pre class=""><code class="language-js">
+//file: some/path/to/MyModule.js
+function MyModule() {
+  this.property = 'foo';
+}
+MyModule.prototype.method = function() {
+  return 'bar';
+};
+module.exports = MyModule;
+...
+
+//file: server.js
+var MyModule = require('some/path/to/my_module');
+var module = new MyModule();
+console.log(module.property, module.method()); //"foo", "bar"
+    </code></pre>
+  </section>
+
+  <section>
+    <h4 class="outline" id="amd">AMD</h4>
+    <p>Although CommonJS modules are well established on the server, their reliance on synchronous module loading (using the local file system) can make them ill suited to use in the browser. The AMD (Asynchronous Module Definition) module framework aims to solve this by allowing modules and their dependencies to be asynchronously loaded. Although the syntax is fairly flexible, the following is a basic example:
+    </p>
+  </section>
+  <section>
+    <pre class=""><code class="language-js">
+define('myModule', //module id
+  ['foo', 'bar'], //dependencies by module id
+  function(foo, bar) { //dependencies mapped to local vars
+    var myModule = {
+      ...
+    }
+    return myModule; //public API
+  }
+);
+    </code></pre>
+    <p class="partial">The standard library for AMD modules is <a href="http://requirejs.org/" target="_blank">require.js</a>, which also includes a tool called <em>r.js</em> used to concatenate files for production.</p>
+	</section>
+
+	<section>
+		<h2 class="outline" id="performance">performance</h2>
+		<p>There are many factors involved in the actual and perceived performance of a site, some of which we have already touched upon.
+		</p>
+	</section>
+
+	<section>
+		<h3 class="outline" id="perfNetwork">Network</h3>
+		<p>The network is definitely the slowest link in the <em>server &lt;-&gt; network &lt;-&gt; client</em> chain of responsibility. Optimizing network operations will have a large impact on actual and perceived responsiveness.
+		</p>
+	</section>
+
+	<section>
+		<h4 class="outline" id="minimizeCalls">Minimize Network Calls</h4>
+		<p>In general, reducing the total number of network calls will minimize overall network latency:
+		</p>
+		<ul>
+			<li class="partial">Combine JavaScript and CSS into as few files as possible:
+				<pre class="partial"><code class="language-bash">
+project/vendor$ cat jquery.min.js underscore.min.js > ../www/js/libs.js
+				</code></pre>
+			</li>
+			<li class="partial">Create <a href="../lesson3/#spriteSheets">sprite sheets</a> for CSS background images</li>
+			<li class="partial"><a href="../lesson3/#inline">Inline</a> small CSS background images</li>
+		</ul>
+		<p class="partial rule">
+			because of the blocking nature of certain asset loading, perceived responsiveness may actually be improved by breaking up assets into smaller packages
+		</p>
+	</section>
+
+	<section>
+		<h4 class="outline" id="optimizeFileSize">Optimize file sizes</h4>
+		<p>Although fewer network calls are generally preferred, smaller file sizes are <em>always</em> better:
+		</p>
+		<ul>
+			<li class="partial">Minimize JavaScript and CSS files with third party tools: <a href="https://github.com/mishoo/UglifyJS" target="_blank">uglify.js</a>, <a href="https://developers.google.com/closure/compiler/" target="_blank">closure compiler</a>, <a href="http://developer.yahoo.com/yui/compressor/" target="_blank">YUI compressor</a></li>
+			<li class="partial">Optimize image compression with third party tools: <a href="http://pngmini.com/" target="_blank">pngmini</a>, <a href="http://www.jpegmini.com/main/home" target="_blank">jpegmini</a></li>
+		</ul>
+  </section>
+
+  <section>
+    <h4 class="outline" id="asyncLoading">Asynchronous Loading</h4>
+    <p>As we <a href="../lesson1/#head-links-scripts">discussed</a> earlier, <code>&lt;script&gt;</code> source loading will block the browser until completion. In cases where your application is not directly dependent on a third party library (Google Analytics, Facebook Connect, etc), and execution order is not important, it is possible to trick the browser into asynchronously loading the file:
+    </p>
+	</section>
+	<section>
+		<pre class=""><code class="language-js">
+(function () {
+  window.asyncLoad = function (link) {
+    var el = document.createElement('script'),
+      firstTag = document.getElementsByTagName('script')[0];
+    el.type = 'text/javascript';
+    el.async = true;
+    el.src = link;
+    firstTag.parentNode.insertBefore(el, firstTag);
+  };
+  window._gaq = [['_setAccount','xxxxxxxx'],
+    ['_trackPageview'],
+    ['_trackPageLoadTime']];
+  window.asyncLoad('//www.google-analytics.com/ga.js');
+  window.asyncLoad('//connect.facebook.net/nb_NO/all.js#xfbml=1&appId=xxxxxxxxx');
+})();
+		</code></pre>
+	</section>
+
+	<section>
+		<h3 class="outline" id="perfHtml">HTML</h3>
+		<p>As the base document on which CSS and JavaScript operate upon, HTML documents can themselves be a source of performance bottlenecks.
+		</p>
+	</section>
+
+	<section>
+		<h4 class="outline" id="simpleMarkup">Simplify markup</h4>
+		<p>In all cases, a simple document will render faster than a more complex one. Because an HTML document is converted by the browser into a DOM tree, reducing the complexity of the document will benefit all DOM operations.
+		</p>
+	</section>
+
+	<section>
+		<h4 class="outline" id="imgDimensions">Specify image dimensions</h4>
+		<p>Because image loading is non-blocking, explicitly specifying an image's dimensions will help the browser create a correctly sized layout box, and therefore prevent a reflow once the image has loaded.
+		</p>
+	</section>
+
+	<section>
+		<h4 class="outline" id="scriptBottom">Load scripts at the bottom</h4>
+		<p>Including <code>&lt;script&gt;</code> tags at the bottom of the <code>body</code> will ensure that styled content is displayed while (blocking) scripts load, improving the perceived responsiveness of the page.
+		</p>
+	</section>
+
+	<section>
+		<h3 class="outline" id="perfCss">CSS</h3>
+		<p>Because CSS is generally responsible for element layout and display, it can have a large impact on rendering performance.
+		</p>
+	</section>
+
+	<section>
+		<h4 class="outline" id="selectors">Optimize selectors</h4>
+		<p>Before any styles can be applied, elements must first be selected. It's advisable to avoid inefficient selector syntax:
+		</p>
+		<ul>
+			<li class="partial">Selectors are <a href="../lesson2/#selectors-parsing">parsed</a> right to left: avoid overly generic right-hand selectors like <code>a</code>, <code>span</code>, <code>*</code>, etc</li>
+			<li class="partial">IDs are unique, and therefore unnecessary to nest in selectors</li>
+		</ul>
+	</section>
+
+	<section>
+		<h4 class="outline" id="transitions">Use transitions</h4>
+		<p>By telegraphing intent, <a href="../lesson3/#transitions">CSS transitions</a> will be able to take advantage of native rendering efficiencies that JavaScript animations will never enjoy.
+		</p>
+	</section>
+
+	<section>
+		<h4 class="outline" id="hardwareAcceleration">enable hardware acceleration</h4>
+		<p>In some cases, on some platforms (iOS for instance), rendering efficiency may be improved by enabling hardware acceleration:
+		</p>
+		<pre class="partial"><code class="language-css">
+.page {
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -o-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+}
+		</code></pre>
+	</section>
+
+	<section>
+		<h4 class="outline" id="effects">Minimize visual effects</h4>
+		<p>Although they benefit network latency by eliminating the need for images, CSS effects (<code>opacity</code>, <code>box-shadow</code>, <code>text-shadow</code>, etc) can have an adverse impact on rendering efficiency.
+		</p>
+	</section>
+
+	<section>
+		<h3 class="outline" id="perfJs">JavaScript</h3>
+		<p>Although interacting with the DOM is by far the biggest source of performance issues, JavaScript comes with a couple of it's own notable tricky points.
+		</p>
+	</section>
+
+	<section>
+		<h4 class="outline" id="iteration">optimize iterators</h4>
+		<p>When iterating through a large collection of items, small time savings can add up. Never read the list length on each iteration:
+		</p>
+		<pre class="partial"><code class="language-js">
+//bad
+for (var i = 0; i &lt; list.length; i++) {
+  ...
+}
+//better
+for (var i = 0, n = list.length; i &lt; n; i++) {
+  ...
+}
+		</code></pre>
+	</section>
+
+  <section>
+    <h4 class="outline" id="prototype">use prototype</h4>
+    <p>As previously <a href="../lesson4/#objPrototype">discussed</a>, taking advantage of an object's <code>prototype</code> is a more memory efficient way to pass on behaviour to decedents.
+    </p>
+  </section>
+
+  <section>
+    <h4 class="outline" id="perfDom">DOM</h4>
+    <p>The DOM API is certainly the worst performing component of browser-based JavaScript. In most cases, when evaluating the performance impact of DOM operations, the key factor is if and how often the browser is forced to repaint or reflow:
+    </p>
+    <ul>
+      <li class="partial"><strong>repaint</strong>: when an element changes without affecting page layout (eg. <code>background-color</code>)</li>
+      <li class="partial"><strong>reflow</strong>: when a change to an element causes a page to recalculate layout positions (eg. <code>float</code>)</li>
+    </ul>
+  </section>
+  <section>
+    <p>Unfortunately, reflows are common and costly, and are triggered even when some element properties are simply read:
+    </p>
+    <ul>
+      <li class="partial">element: <code>clientHeight/Width, clientTop/Left, offsetHeight/Width, offsetTop/Left, offsetParent, scrollHeight/Width, scrollTop/Left, focus(), innerText</code></li>
+      <li class="partial">image: <code>width, height</code></li>
+      <li class="partial">window: <code>getComputedStyle(), scrollTo(), scrollX/Y</code></li>
+    </ul>
+  </section>
+  <section>
+    <iframe width="640" height="390" src="http://www.youtube.com/embed/ZTnIxIA5KGw" frameborder="0" allowfullscreen></iframe>
+  </section>
+
+  <section>
+    <h5 class="outline" id="cacheElement">Cache element references</h5>
+    <p>While element selection won't cause a repaint/reflow, DOM tree traversal is also costly. Always cache a reference to a selected element, especially when using jQuery (the jQuery syntax conceals the fact that a selection is being made):
+    </p>
+    <pre class="partial"><code class="language-js">
+//bad
+$('#btn').mouseover(onMouseOver);
+$('#btn').mouseout(onMouseOut);
+
+//better
+var btn = $('#btn');
+btn.mouseover(onMouseOver);
+btn.mouseout(onMouseOut);
+    </code></pre>
+  </section>
+
+	<section>
+		<h5 class="outline" id="offTree">Work off the tree</h5>
+		<p>As we <a href="../lesson5/#createFragment">discussed</a> briefly already, using a <code>document.createDocumentFragment()</code> to build dynamic HTML is more efficient than working directly on the live tree. Other options are to <em>clone</em> or <em>hide</em> the portion of the document you want to modify:
+		</p>
+    <pre class="partial"><code class="language-js">
+var clone = el.cloneNode();
+... //modify
+el.parentNode.replaceChild(clone, el);
+
+el.style.display = 'none';
+... //modify
+el.style.display = 'block';
+    </code></pre>
+  </section>
+
+  <section>
+    <h2 class="pres">school's out...for summer!</h2>
+  </section>
+
+	<footer>
+		<div class="highlight">
+			<h2 class="outline" id="links">Links</h2>
+			<ul>
+				<li><a href="http://addyosmani.com/resources/essentialjsdesignpatterns/book/" target="_blank">Essential JS Design Patterns</a></li>
+				<li><a href="http://addyosmani.github.com/backbone-fundamentals" target="_blank">Backbone Fundamentals book</a></li>
+        <li><a href="http://nodejs.org/api/modules.html" target="_blank">Node.js Module documentation</a></li>
+        <li><a href="http://addyosmani.com/writing-modular-js/" target="_blank">Writing modular JS</a></li>
+				<li><a href="http://static.trygve-lie.com/doc/browser_performance/" target="_blank">Browser Performance</a></li>
+			</ul>
+		</div>
+	</footer>
+</article>
+<?php include '../_footer.php' ?>
